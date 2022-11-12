@@ -1,6 +1,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { MouseEvent, useState } from "react";
+import axios from "axios";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -12,16 +13,29 @@ const Dashboard = () => {
   });
 
   const [number, setNumber] = useState("");
+  const [updating, setUpdating] = useState(false);
   const user = session?.user;
+  const email = user?.email;
 
   const handleSignOut = (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.innerText = "Logging out...";
     signOut({ callbackUrl: "/" });
   };
 
+  const validNumber = (number: string) => {
+    const regex = /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/;
+    return number.match(regex);
+  };
+
   const updateNumber = (e: MouseEvent<HTMLButtonElement>) => {
-    // e.currentTarget.innerText = "Updating...";
-    e.preventDefault();
+    if (!validNumber(number)) {
+      alert("Please enter a valid number");
+      return;
+    }
+    setUpdating(true);
+    axios
+      .post("api/update", { email: email, number: number })
+      .then(() => setUpdating(false));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,10 +51,13 @@ const Dashboard = () => {
         placeholder="123-456-7890"
         onChange={handleChange}
       ></input>
-      <button onClick={updateNumber}>Update Number</button>
+      <button onClick={updateNumber}>
+        {updating ? "Updating..." : "Update Number"}
+      </button>
       <div>
         <button onClick={handleSignOut}>Log Out</button>
       </div>
+      {/* <ToastContainer /> */}
     </>
   );
 };

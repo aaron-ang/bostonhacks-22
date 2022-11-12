@@ -7,7 +7,7 @@ export default async function handler(request: any, response: any) {
   const { email, number } = request.body;
   const queries = [
     "CREATE TABLE IF NOT EXISTS phone_numbers (email STRING NOT NULL PRIMARY KEY, number STRING)",
-    `UPSERT INTO phone_numbers (email, number) VALUES ('${email}', '${number}')`,
+    ``,
   ];
 
   try {
@@ -15,9 +15,7 @@ export default async function handler(request: any, response: any) {
     for (let n = 0; n < queries.length; n++) {
       await client.query(queries[n]);
     }
-    response.json({
-      message: "Success!",
-    });
+    response.json({});
   } catch (err: any) {
     response.status(500).json({
       message: err.message,
