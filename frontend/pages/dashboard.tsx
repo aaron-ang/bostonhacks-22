@@ -52,7 +52,7 @@ const Dashboard = () => {
         onChange={handleChange}
       ></input>
       <button onClick={updateNumber}>
-        {updating ? "Updating..." : "Update Number"}
+        {updating ? "Adding..." : "Add Number"}
       </button>
       <div>
         <button onClick={handleSignOut}>Log Out</button>

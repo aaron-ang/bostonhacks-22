@@ -21,16 +21,18 @@ with the number in which you want to send message.'''
 
 
 def exec_statement(conn, stmt):
+    res = []
     try:
         with conn.cursor() as cur:
             cur.execute(stmt)
             rows = cur.fetchall()
-            conn.commit()
             for r in rows:
-                print(r)
+                res.append(r[0])
 
     except ProgrammingError:
         return
+
+    return res
 
 
 def processText():
@@ -50,12 +52,8 @@ def main():
     # Connect to CockroachDB
     connection = psycopg.connect(DATABASE_URL)
 
-    statements = [
-        "SELECT message FROM users",
-    ]
-
-    for statement in statements:
-        exec_statement(connection, statement)
+    phone_nums = exec_statement(connection, "SELECT message FROM users")
+    print(phone_nums)
 
     # Close communication with the database
     connection.close()

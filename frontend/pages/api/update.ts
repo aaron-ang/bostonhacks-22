@@ -10,10 +10,10 @@ export default async function handler(
 ) {
   const { email: email, number: number } = req.body;
   const queries = [
-    "DROP TABLE IF EXISTS users",
-    "CREATE TABLE IF NOT EXISTS users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email STRING, message STRING)",
-    `INSERT INTO users (id, email, message) VALUES (DEFAULT, '${email}', '${number}')`,
-    "SELECT * FROM users",
+    "DROP TABLE IF EXISTS users;",
+    "CREATE TABLE IF NOT EXISTS users (email STRING PRIMARY KEY, message STRING NOT NULL);",
+    `INSERT INTO users (email, message) VALUES ('${email}', '${number}');`,
+    "SELECT * FROM users;",
   ];
 
   try {
