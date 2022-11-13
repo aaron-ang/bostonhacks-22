@@ -62,9 +62,9 @@ def getEvents():
             database.append(inputElement(url, d))
 
     # CHANGE PATH
-    PATH = "./data.csv"
+    PATH = ".server/data.csv"
     with open(PATH, 'w', newline='') as csvfile:
-        fieldnames = ['date', 'url', 'title', 'details', 'time', 'org']
+        fieldnames = ['url', 'date', 'title', 'details', 'time', 'org']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for list in database:
