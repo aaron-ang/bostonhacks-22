@@ -13,7 +13,7 @@ export default function Home() {
       </Head>
       <div className={styles.container}>
         <span className={styles.logo}>
-          <Image src="/RhettAlertLogov2.png" alt="RhettAlert Logo" width={400} height={400} />
+          <Image src="/RhettAlertLogov2.png" alt="RhettAlert Logo" width={600} height={450} />
         </span>
       </div>
       <div className={styles.container1}>
