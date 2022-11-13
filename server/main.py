@@ -1,32 +1,28 @@
 import csv
-import schedule
-import time
 import os
-from dotenv import load_dotenv
-# importing twilio
-from twilio.rest import Client
-from datetime import date
-from datetime import timedelta
-from psycopg.errors import ProgrammingError
+import string
+from datetime import date, timedelta
 import psycopg
+from dotenv import load_dotenv
+from psycopg.errors import ProgrammingError
+from twilio.rest import Client
 
 load_dotenv()
 
 # Your Account Sid and Auth Token from twilio.com / console
 ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
-DATABASE_URL = os.getenv('DATABASE_URL')
-today = date.today()
-tommorrow = today + timedelta(days=1)
-today = today.strftime("%Y-%m-%d")
-tommorrow = tommorrow.strftime("%Y-%m-%d")
-
+DATABASE_URL = str(os.getenv('DATABASE_URL'))
+TWILIO_NUMBER = os.getenv("TWILIO_NUMBER")
 
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
+today = date.today()
+tomorrow = today + timedelta(days=1)
+today = today.strftime("%Y-%m-%d")
+tomorrow = tomorrow.strftime("%Y-%m-%d")
 
 
 def getEventList():
-    # replace path
     PATH = "./server/data.csv"
 
     with open(PATH, 'r') as read_obj:
@@ -37,16 +33,17 @@ def getEventList():
 
 
 def exec_statement(conn, stmt):
-    res = []
+    res: list[str] = []
     try:
         with conn.cursor() as cur:
             cur.execute(stmt)
             rows = cur.fetchall()
+            # get all phone numbers (2nd column)
             for r in rows:
-                res.append(r[0])
+                res.append(r[1])
 
     except ProgrammingError:
-        return
+        return []
 
     return res
 
@@ -57,7 +54,8 @@ def newDayList(list1):
         if list1[i][0] == today:
             newList.append(list1[i])
         else:
-            break
+            continue
+
     return newList
 
 
@@ -85,24 +83,26 @@ def format(data):
             messageToDisplay += currentMessage
         eventNum += 1
     brokenUpMessage.append(messageToDisplay)
+
     return brokenUpMessage
 
 
-def processText(str1):
+def processText(msg):
     # Connect to CockroachDB
     connection = psycopg.connect(DATABASE_URL)
-    phone_nums = exec_statement(connection, "SELECT message FROM users")
+    phone_nums = exec_statement(connection, "SELECT * FROM users")
+    # phone_nums=["929-410-1112"]
+    print(phone_nums)
 
-    message = str1
     for number in phone_nums:
         currentNumber = "".join(number.split("-"))
         currentNumber = '+1' + currentNumber
-        message = client.messages.create(
-            from_='+16178827645',
-            body=message,
-            to=currentNumber
-        )
-        print(message.sid)
+        # twilioMsg = client.messages.create(
+        #     from_=TWILIO_NUMBER,
+        #     body=msg,
+        #     to=currentNumber
+        # )
+        # print(twilioMsg.sid)
 
     # Close communication with the database
     connection.close()

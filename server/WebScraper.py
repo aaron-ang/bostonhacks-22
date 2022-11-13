@@ -2,11 +2,11 @@
 # pip install html5lib
 # pip install bs4
 
-import requests
-from datetime import date
-from bs4 import BeautifulSoup
-from datetime import timedelta
 import csv
+from datetime import date, timedelta
+
+import requests
+from bs4 import BeautifulSoup
 
 
 def returnListUrls():
@@ -35,10 +35,10 @@ def returnEventUrls():
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html5lib")
         event_list = soup.find('section', id="event-list")
-        # print(event_list.findAll('li'))
+        # print(event_list.find_all('li'))
 
         list_day_urls = []
-        for tag in event_list.findAll('li'):
+        for tag in event_list.find_all('li'):  # type: ignore
             temp.append(str(tag))
 
         for event in temp:
@@ -62,7 +62,7 @@ def getEvents():
             database.append(inputElement(url, d))
 
     # CHANGE PATH
-    PATH = ".server/data.csv"
+    PATH = "./server/data.csv"
     with open(PATH, 'w', newline='') as csvfile:
         fieldnames = ['url', 'date', 'title', 'details', 'time', 'org']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -83,7 +83,7 @@ def inputElement(url, d):
     # print(soup)
     event = soup.find('section', id='event-detail')
 
-    title = event.find('h1')
+    title = event.find('h1')  # type: ignore
     # print(str(title))
     title = str(title)
     try:
@@ -94,7 +94,7 @@ def inputElement(url, d):
     # print(title)
     db_item.append((title))
 
-    details = event.find('p')
+    details = event.find('p')  # type: ignore
     # print(str(details))
     details = str(details)
     try:
@@ -105,12 +105,12 @@ def inputElement(url, d):
     # print(details)
     db_item.append((details))
 
-    raw_th = event.findAll('th')
+    raw_th = event.find_all('th')  # type: ignore
     for i in range(len(raw_th)):
         raw_th[i] = str(raw_th[i]).split("<th>")[1]
         raw_th[i] = raw_th[i].split("</th>")[0]
 
-    raw_td = event.findAll('td')
+    raw_td = event.find_all('td')  # type: ignore
     for i in range(len(raw_th)):
         raw_td[i] = str(raw_td[i]).split("<td>")[1]
         raw_td[i] = raw_td[i].split("</td>")[0]
@@ -128,4 +128,9 @@ def inputElement(url, d):
     return db_item
 
 
-getEvents()
+def main():
+    getEvents()
+
+
+if __name__ == "__main__":
+    main()

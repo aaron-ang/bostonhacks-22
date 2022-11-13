@@ -1,8 +1,6 @@
-import { Client } from "pg";
+import { Pool } from "pg";
 import { config } from "../../config";
 import type { NextApiRequest, NextApiResponse } from "next";
-
-const client = new Client(config);
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,14 +8,16 @@ export default async function handler(
 ) {
   const { email: email, number: number } = req.body;
   const queries = [
-    "DROP TABLE IF EXISTS users;",
-    "CREATE TABLE IF NOT EXISTS users (email STRING PRIMARY KEY, message STRING NOT NULL);",
-    `INSERT INTO users (email, message) VALUES ('${email}', '${number}');`,
+    // "DROP TABLE IF EXISTS users;",
+    "CREATE TABLE IF NOT EXISTS users (email VARCHAR(20) PRIMARY KEY, number VARCHAR(12) NOT NULL);",
+    `UPSERT INTO users (email, number) VALUES ('${email}', '${number}');`,
     "SELECT * FROM users;",
   ];
 
   try {
-    await client.connect();
+    const pool = new Pool(config);
+    const client = await pool.connect();
+
     for (let n = 0; n < queries.length; n++) {
       let result = await client.query(queries[n]);
       if (result.rows) {
@@ -26,7 +26,8 @@ export default async function handler(
         });
       }
     }
-    await client.end();
+    // await client.end();
+
     res.json({
       message: "Success!",
     });
