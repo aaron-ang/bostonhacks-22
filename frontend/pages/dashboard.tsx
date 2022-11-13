@@ -2,6 +2,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { MouseEvent, useState } from "react";
 import axios from "axios";
+import styles from "../styles/Home.module.css";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -45,17 +46,23 @@ const Dashboard = () => {
   return (
     <>
       <h1>Hello, {user?.name}</h1>
-      <input
-        type="tel"
-        pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-        placeholder="123-456-7890"
-        onChange={handleChange}
-      ></input>
-      <button onClick={updateNumber}>
-        {updating ? "Adding..." : "Add Number"}
-      </button>
-      <div>
-        <button onClick={handleSignOut}>Log Out</button>
+      <div className={styles.container}>
+        <input
+          type="tel"
+          pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
+          placeholder="123-456-7890"
+          onChange={handleChange}
+          className = {styles.inputContainer}
+        ></input>
+      </div>
+      <div className={styles.container1}>
+        <button className={styles.btn} onClick={updateNumber}>
+          {updating ? "Adding..." : "Add Number"}
+        </button>
+      </div>
+      
+      <div className={styles.container2}>
+        <button className={styles.btn} onClick={handleSignOut}>Log Out</button>
       </div>
       {/* <ToastContainer /> */}
     </>
