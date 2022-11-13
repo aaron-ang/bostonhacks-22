@@ -62,9 +62,9 @@ def getEvents():
             database.append(inputElement(url, d))
 
     # CHANGE PATH
-    PATH = "C:/Users/etanm/OneDrive/Documents/VSCode/BostonHacks/data.csv"
+    PATH = "./data.csv"
     with open(PATH, 'w', newline='') as csvfile:
-        fieldnames = ['url', 'date', 'title', 'details', 'time', 'org']
+        fieldnames = ['date', 'url', 'title', 'details', 'time', 'org']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for list in database:
@@ -97,7 +97,10 @@ def inputElement(url, d):
     details = event.find('p')
     # print(str(details))
     details = str(details)
-    details = details.split("<p>")[1]
+    try:
+        details = details.split("<p>")[1]
+    except:
+        pass
     details = details.split("</p>")[0]
     # print(details)
     db_item.append((details))
