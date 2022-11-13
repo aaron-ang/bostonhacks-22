@@ -33,9 +33,9 @@ const Dashboard = () => {
       return;
     }
     setUpdating(true);
-    axios
-      .post("api/update", { email: email, number: number })
-      .then(() => setUpdating(false));
+    axios.post("api/update", { email: email, number: number }).then(() => {
+      setUpdating(false);
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

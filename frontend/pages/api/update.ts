@@ -1,25 +1,37 @@
-import { Pool } from "pg";
+import { Client } from "pg";
 import { config } from "../../config";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-const pool = new Pool(config);
+const client = new Client(config);
 
-export default async function handler(request: any, response: any) {
-  const { email, number } = request.body;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { email: email, number: number } = req.body;
   const queries = [
-    "CREATE TABLE IF NOT EXISTS phone_numbers (email STRING NOT NULL PRIMARY KEY, number STRING)",
-    `UPSERT INTO phone_numbers (email, number) VALUES ('${email}', '${number}')`,
+    "DROP TABLE IF EXISTS users",
+    "CREATE TABLE IF NOT EXISTS users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email STRING, message STRING)",
+    `INSERT INTO users (id, email, message) VALUES (DEFAULT, '${email}', '${number}')`,
+    "SELECT * FROM users",
   ];
 
   try {
-    const client = await pool.connect();
+    await client.connect();
     for (let n = 0; n < queries.length; n++) {
-      await client.query(queries[n]);
+      let result = await client.query(queries[n]);
+      if (result.rows) {
+        result.rows.forEach((row) => {
+          console.log(row.message);
+        });
+      }
     }
-    response.json({
+    await client.end();
+    res.json({
       message: "Success!",
     });
   } catch (err: any) {
-    response.status(500).json({
+    res.status(500).json({
       message: err.message,
     });
   }

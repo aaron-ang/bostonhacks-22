@@ -15,7 +15,9 @@ export default async function handler(request: any, response: any) {
     for (let n = 0; n < queries.length; n++) {
       await client.query(queries[n]);
     }
-    response.json({});
+    response.json({
+      
+    });
   } catch (err: any) {
     response.status(500).json({
       message: err.message,

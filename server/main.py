@@ -1,37 +1,65 @@
 import schedule
 import time
-
-# importing twilio
+import os
+from dotenv import load_dotenv
+import psycopg
+from psycopg.errors import ProgrammingError
 from twilio.rest import Client
 
-# Your Account Sid and Auth Token from twilio.com / console
-account_sid = 'AC37f1875e071ba09e925c8327cef77db4'
-auth_token = 'ddbb324d42d78eda5b084496c6eab18a'
+load_dotenv()
 
-client = Client(account_sid, auth_token)
+# Your Account Sid and Auth Token from twilio.com / console
+ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 ''' Change the value of 'from' with the number
 received from Twilio and the value of 'to'
 with the number in which you want to send message.'''
 
 
+def exec_statement(conn, stmt):
+    try:
+        with conn.cursor() as cur:
+            cur.execute(stmt)
+            rows = cur.fetchall()
+            conn.commit()
+            for r in rows:
+                print(r)
+
+    except ProgrammingError:
+        return
+
 
 def processText():
     list = [9294101112]
-    for  number in list:
+    for number in list:
         currentNumber = str(number)
         currentNumber = '+1' + currentNumber
         message = client.messages.create(
-                                from_='+16178827645',
-                                body ='body',
-                                to =currentNumber
-                            )
+            from_='+16178827645',
+            body='body',
+            to=currentNumber
+        )
         print(message.sid)
 
-schedule.every(10).seconds.do(processText)
-schedule.every().day.at("09:00").do(processText)
+
+def main():
+    # Connect to CockroachDB
+    connection = psycopg.connect(DATABASE_URL)
+
+    statements = [
+        "SELECT message FROM users",
+    ]
+
+    for statement in statements:
+        exec_statement(connection, statement)
+
+    # Close communication with the database
+    connection.close()
 
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+if __name__ == "__main__":
+    main()
