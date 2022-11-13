@@ -21,15 +21,16 @@ def returnListUrls():
     for i in range(len(list_days)):
         url = "https://www.bu.edu/calendar/?day=" + \
             list_days[i].strftime("%Y-%m-%d")
+        d = list_days[i].strftime("%Y-%m-%d")
         # print(url)
-        list_urls.append(url)
+        list_urls.append([url, d])
     return list_urls
 
 
 def returnEventUrls():
     list_raw_urls = returnListUrls()
     list_full_urls = []
-    for url in list_raw_urls:
+    for url, d in list_raw_urls:
         temp = []
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html5lib")
@@ -47,37 +48,35 @@ def returnEventUrls():
             list_day_urls.append(event)
             # print(event)
 
-        list_full_urls.append(list_day_urls)
+        list_full_urls.append([list_day_urls, d])
 
     return list_full_urls
 
 
 def getEvents():
     list_full_urls = returnEventUrls()
-    url = list_full_urls[0][0]
 
     database = []
-    count = 0
-    for list_day_url in list_full_urls:
+    for list_day_url, d in list_full_urls:
         for url in list_day_url:
-            database.append(inputElement(url))
+            database.append(inputElement(url, d))
 
     # CHANGE PATH
     PATH = "C:/Users/etanm/OneDrive/Documents/VSCode/BostonHacks/data.csv"
     with open(PATH, 'w', newline='') as csvfile:
-        fieldnames = ['url', 'title', 'details', 'time', 'org']
+        fieldnames = ['url', 'date', 'title', 'details', 'time', 'org']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for list in database:
             try:
                 writer.writerow(
-                    {'url': list[0], 'title': list[1], 'details': list[2], 'time': list[3], 'org': list[4]})
+                    {'url': list[0], 'date': list[1], 'title': list[2], 'details': list[3], 'time': list[4], 'org': list[5]})
             except:
                 pass
 
 
-def inputElement(url):
-    db_item = [(url)]
+def inputElement(url, d):
+    db_item = [(d), (url)]
 
     r = requests.get(url)
     soup = BeautifulSoup(r.content, "html5lib")
