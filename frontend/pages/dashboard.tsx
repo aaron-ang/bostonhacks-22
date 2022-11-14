@@ -1,6 +1,6 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import axios from "axios";
 import styles from "../styles/Home.module.css";
 
@@ -17,6 +17,12 @@ const Dashboard = () => {
   const [updating, setUpdating] = useState(false);
   const user = session?.user;
   const email = user?.email;
+
+  useEffect(() => {
+    axios.get(`/api/user/${user?.email}`).then((res) => {
+      setNumber(res.data.number);
+    });
+  }, [user]);
 
   const handleSignOut = (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.innerText = "Logging out...";
@@ -50,19 +56,21 @@ const Dashboard = () => {
         <input
           type="tel"
           pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-          placeholder="123-456-7890"
+          placeholder={number ? number : "123-456-7890"}
           onChange={handleChange}
-          className = {styles.inputContainer}
+          className={styles.inputContainer}
         ></input>
       </div>
       <div className={styles.container1}>
         <button className={styles.btn} onClick={updateNumber}>
-          {updating ? "Adding..." : "Add Number"}
+          {updating ? "Updating..." : "Update Number"}
         </button>
       </div>
-      
+
       <div className={styles.container2}>
-        <button className={styles.btn} onClick={handleSignOut}>Log Out</button>
+        <button className={styles.btn} onClick={handleSignOut}>
+          Log Out
+        </button>
       </div>
       {/* <ToastContainer /> */}
     </>
