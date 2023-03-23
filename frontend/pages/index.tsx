@@ -18,7 +18,7 @@ export default function Home() {
       </div>
       <div className={styles.container1}>
         <button className={styles.btn}
-          onClick={() => signIn(undefined, { callbackUrl: "/dashboard" })} // Log in
+          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
         >
           Login
         </button>
